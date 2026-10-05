@@ -1,0 +1,9 @@
+A | 4465500
+B | 4623500
+C | 3613500
+orders | 1000
+payments | 1035
+refunds | 42
+orders_paid_in_two_parts | 165
+B_doubled_by_join | 138
+B_paid_in_october | 44

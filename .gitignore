@@ -1,0 +1,12 @@
+# База собирается run.sh, в репозиторий не кладётся
+*.db
+*.db-journal
+
+# Python
+__pycache__/
+*.pyc
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/

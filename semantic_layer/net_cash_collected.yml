@@ -1,0 +1,62 @@
+# Иллюстрация к статье: метрика из запроса C, описанная в dbt Semantic Layer
+# (актуальная спецификация, semantic model внутри models:).
+#
+# Это фрагмент, а не готовый dbt-проект: модели fct_payments и fct_refunds
+# предполагаются построенными поверх таблиц payments и refunds из schema.sql.
+# Компиляция через dbt в этом репозитории не проверяется.
+#
+# Документация: https://docs.getdbt.com/docs/build/semantic-models
+#               https://docs.getdbt.com/docs/build/derived
+
+models:
+  - name: fct_payments
+    description: "Одна строка — один платёж. На один заказ бывает несколько платежей."
+    semantic_model:
+      enabled: true
+    agg_time_dimension: paid_at
+    columns:
+      - name: payment_id
+        entity: {type: primary, name: payment}
+      - name: order_id
+        entity: {type: foreign, name: order}
+      - name: paid_at
+        granularity: day
+        dimension: {type: time}
+    metrics:
+      - name: paid
+        label: Поступило денег
+        type: simple
+        agg: sum
+        expr: amount
+
+  - name: fct_refunds
+    description: "Одна строка — один возврат."
+    semantic_model:
+      enabled: true
+    agg_time_dimension: refunded_at
+    columns:
+      - name: refund_id
+        entity: {type: primary, name: refund}
+      - name: order_id
+        entity: {type: foreign, name: order}
+      - name: refunded_at
+        granularity: day
+        dimension: {type: time}
+    metrics:
+      - name: refunded
+        label: Возвращено денег
+        type: simple
+        agg: sum
+        expr: amount
+
+metrics:
+  - name: net_cash_collected
+    label: Чистые поступления
+    description: >
+      Деньги, поступившие за период, минус возвраты за тот же период.
+      Дата — дата движения денег, а не дата заказа.
+    type: derived
+    expr: paid - refunded
+    input_metrics:
+      - name: paid
+      - name: refunded

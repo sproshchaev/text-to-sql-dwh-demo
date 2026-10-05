@@ -1,0 +1,20 @@
+name: check
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install sqlite3
+        run: sudo apt-get update && sudo apt-get install -y sqlite3
+
+      - name: seed.sql regenerates byte for byte
+        run: python3 generate_seed.py | diff - seed.sql
+
+      - name: Results match expected.txt
+        run: ./run.sh
